@@ -51,10 +51,12 @@ pipeline {
             steps {
                 script {
                     withCredentials([aws(credentialsId: 'aws-credentials-id', region: "${AWS_REGION}")]) {
-                        sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name my-eks-cluster'
-                        sh 'kubectl apply -f k8s/secrets.yaml'
-                        sh "kubectl set image deployment/api edstock-api=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
-                        sh 'kubectl apply -f k8s/api-service.yaml'
+                        dir('k8s') {
+                            sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name my-eks-cluster'
+                            sh 'kubectl apply -f secrets.yaml'
+                            sh "kubectl set image deployment/api edstock-api=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
+                            sh 'kubectl apply -f api-service.yaml'
+                        }
                     }
                 }
             }
