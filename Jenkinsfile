@@ -50,10 +50,12 @@ pipeline {
         stage('Deploy API to EKS') {
             steps {
                 script {
-                    sh 'aws eks update-kubeconfig --name my-eks-cluster --region ap-southeast-1'
-                    sh 'kubectl apply -f eks/configuration-files/secrets.yaml'
-                    sh "kubectl set image deployment/api edstock-api=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
-                    sh 'kubectl apply -f eks/configuration-files/api-service.yaml'
+                    withCredentials([aws(credentialsId: 'aws-credentials-id', region: "${AWS_REGION}")]) {
+                        sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name my-eks-cluster'
+                        sh 'kubectl apply -f eks/configuration-files/secrets.yaml'
+                        sh "kubectl set image deployment/api edstock-api=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
+                        sh 'kubectl apply -f eks/configuration-files/api-service.yaml'
+                    }
                 }
             }
         }
