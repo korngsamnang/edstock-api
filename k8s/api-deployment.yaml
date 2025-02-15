@@ -17,11 +17,11 @@ spec:
                   image: 767398103155.dkr.ecr.ap-southeast-1.amazonaws.com/edstock-api:ee1b55e
                   env:
                       - name: PORT
-                        value: "8000"
+                        value: "80"
                       - name: DATABASE_URL
                         valueFrom:
                             secretKeyRef:
                                 name: db-secret
                                 key: database_url
                   ports:
-                      - containerPort: 8000
+                      - containerPort: 80
