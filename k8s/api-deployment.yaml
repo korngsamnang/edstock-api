@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: api
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: api
+    template:
+        metadata:
+            labels:
+                app: api
+        spec:
+            containers:
+                - name: api
+                  image: 767398103155.dkr.ecr.ap-southeast-1.amazonaws.com/edstock-api:ee1b55e
+                  env:
+                      - name: PORT
+                        value: "8000"
+                      - name: DATABASE_URL
+                        valueFrom:
+                            secretKeyRef:
+                                name: db-secret
+                                key: database_url
+                  ports:
+                      - containerPort: 8000

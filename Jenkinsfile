@@ -46,14 +46,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy API to EKS') {
+            steps {
+                script {
+                    sh 'aws eks update-kubeconfig --name my-eks-cluster --region ap-southeast-1'
+                    sh 'kubectl apply -f eks/configuration-files/secrets.yaml'
+                    sh "kubectl set image deployment/api edstock-api=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
+                    sh 'kubectl apply -f eks/configuration-files/api-service.yaml'
+                }
+            }
+        }
+
     }
 
     post {
         success {
-            echo "✅ API image successfully built and pushed to AWS ECR: ${IMAGE_TAG}"
+            echo "✅ Newly built API has been deployed to EKS!"
         }
         failure {
-            echo "❌ API build or push to ECR failed!"
+            echo "❌ Failed to deploy API to EKS!"
         }
     }
 }
